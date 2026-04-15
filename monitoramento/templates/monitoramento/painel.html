@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monitoramento</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+
+        h1 {
+            margin: 10px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 15px;
+            width: 160px;
+        }
+
+        .valor {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .grafico-container {
+            width: 90%;
+            max-width: 600px;
+            height: 250px;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🌡️ Monitoramento da Estufa</h1>
+
+<div class="container">
+    <div class="card">
+        <h3>Temperatura</h3>
+        <div class="valor" id="temp">--</div>
+        <div>°C</div>
+    </div>
+
+    <div class="card">
+        <h3>Umidade</h3>
+        <div class="valor" id="umid">--</div>
+        <div>%</div>
+    </div>
+</div>
+
+<div class="grafico-container">
+    <canvas id="grafico"></canvas>
+</div>
+
+<script>
+let chart;
+
+function criarGrafico(labels, temperaturas, umidades) {
+    const ctx = document.getElementById('grafico').getContext('2d');
+
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Temperatura (°C)',
+                    data: temperaturas,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239,68,68,0.2)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    yAxisID: 'yTemp'
+                },
+                {
+                    label: 'Umidade (%)',
+                    data: umidades,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.2)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    yAxisID: 'yUmid'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "white"
+                    }
+                }
+            },
+            scales: {
+                yTemp: {
+                    type: 'linear',
+                    position: 'left',
+                    ticks: { color: '#ef4444' },
+                    grid: { color: "rgba(255,255,255,0.05)" }
+                },
+                yUmid: {
+                    type: 'linear',
+                    position: 'right',
+                    ticks: { color: '#3b82f6' },
+                    grid: { drawOnChartArea: false }
+                },
+                x: {
+                    ticks: { color: "white" }
+                }
+            }
+        }
+    });
+}
+
+function atualizarDados() {
+    // 🔥 evita cache (ESSENCIAL)
+    fetch('/monitoramento/api/?t=' + new Date().getTime())
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data || data.length === 0) return;
+
+            let labels = [];
+            let temperaturas = [];
+            let umidades = [];
+
+            data.forEach(item => {
+                let hora = new Date(item.data).toLocaleTimeString();
+                labels.push(hora);
+                temperaturas.push(item.temperatura);
+                umidades.push(item.umidade);
+            });
+
+            // 🔥 pega sempre o mais recente
+            let ultimo = data[data.length - 1];
+
+            document.getElementById("temp").innerText = ultimo.temperatura.toFixed(1);
+            document.getElementById("umid").innerText = ultimo.umidade.toFixed(1);
+
+            // Atualiza gráfico
+            if (!chart) {
+                criarGrafico(labels, temperaturas, umidades);
+            } else {
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = temperaturas;
+                chart.data.datasets[1].data = umidades;
+                chart.update();
+            }
+        });
+}
+
+// Atualiza a cada 3 segundos
+setInterval(atualizarDados, 3000);
+
+// primeira execução
+atualizarDados();
+</script>
+
+</body>
+</html>
