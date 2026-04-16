@@ -2,6 +2,10 @@
 <html>
 <head>
     <title>Monitoramento</title>
+
+    <!-- 🔥 RESPONSIVIDADE -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -15,32 +19,56 @@
 
         h1 {
             margin: 10px;
+            font-size: 20px;
         }
 
+        /* 🔥 CONTAINER FLEXÍVEL */
         .container {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
             margin-top: 10px;
+            flex-wrap: wrap; /* 🔥 quebra no celular */
         }
 
+        /* 🔥 CARDS RESPONSIVOS */
         .card {
             background: #1e293b;
             padding: 15px;
             border-radius: 15px;
-            width: 160px;
+            width: 140px;
         }
 
         .valor {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: bold;
         }
 
+        /* 🔥 GRÁFICO AJUSTADO */
         .grafico-container {
-            width: 90%;
-            max-width: 600px;
-            height: 250px;
+            width: 95%;
+            max-width: 500px;
+            height: 200px; /* 🔥 menor (sem scroll) */
             margin: 10px auto;
+        }
+
+        /* 🔥 MOBILE EXTRA */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 18px;
+            }
+
+            .card {
+                width: 45%; /* dois lado a lado */
+            }
+
+            .valor {
+                font-size: 24px;
+            }
+
+            .grafico-container {
+                height: 180px;
+            }
         }
     </style>
 </head>
@@ -138,7 +166,6 @@ function criarGrafico(labels, temperaturas, umidades) {
 }
 
 function atualizarDados() {
-    // 🔥 evita cache (ESSENCIAL)
     fetch('/monitoramento/api/?t=' + new Date().getTime())
         .then(res => res.json())
         .then(data => {
@@ -156,13 +183,11 @@ function atualizarDados() {
                 umidades.push(item.umidade);
             });
 
-            // 🔥 pega sempre o mais recente
             let ultimo = data[data.length - 1];
 
             document.getElementById("temp").innerText = ultimo.temperatura.toFixed(1);
             document.getElementById("umid").innerText = ultimo.umidade.toFixed(1);
 
-            // Atualiza gráfico
             if (!chart) {
                 criarGrafico(labels, temperaturas, umidades);
             } else {
@@ -174,10 +199,7 @@ function atualizarDados() {
         });
 }
 
-// Atualiza a cada 3 segundos
 setInterval(atualizarDados, 3000);
-
-// primeira execução
 atualizarDados();
 </script>
 
