@@ -7,8 +7,8 @@ class LeituraSensor(models.Model):
     umidificador = models.BooleanField(default=False)
     data = models.DateTimeField(auto_now_add=True)
 
-class Controle(models.Model):
-    ventoinha = models.BooleanField(default=False)    
+    def __str__(self):
+        return f"Temp: {self.temperatura}°C, Umid: {self.umidade}%, Vent: {'ON' if self.ventoinha else 'OFF'}, Umidif: {'ON' if self.umidificador else 'OFF'} - {self.data.strftime('%Y-%m-%d %H:%M:%S')}"  
 
 
 
