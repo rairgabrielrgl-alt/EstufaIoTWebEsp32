@@ -10,15 +10,16 @@ def receber_dados(request):
         try:
             data = json.loads(request.body)
 
-            temperatura = data.get("temperatura")
-            umidade = data.get("umidade")
-
-            print("TEMP:", temperatura)
-            print("UMID:", umidade)
+            temp = data.get("temperatura")
+            umid = data.get("umidade")
+            vent = data.get("ventoinha")
+            umidif = data.get("umidificador")
 
             LeituraSensor.objects.create(
-                temperatura=temperatura,
-                umidade=umidade
+                temperatura=temp,
+                umidade=umid,
+                ventoinha=vent,
+                umidificador=umidif
             )
 
             return JsonResponse({"status": "salvo"})
@@ -39,7 +40,7 @@ def painel(request):
 def api_dados(request):
     dados = list(
         LeituraSensor.objects.order_by('-data')[:20]
-        .values('temperatura', 'umidade', 'data')
+        .values('temperatura', 'umidade', 'ventoinha', 'umidificador', 'data')
     )
 
     return JsonResponse(dados[::-1], safe=False)

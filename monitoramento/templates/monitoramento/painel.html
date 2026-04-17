@@ -94,6 +94,17 @@
 <div class="grafico-container">
     <canvas id="grafico"></canvas>
 </div>
+<div class="container">
+    <div class="card">
+        <h3>Ventoinha</h3>
+        <div id="ventoinhaStatus">--</div>
+    </div>
+
+    <div class="card">
+        <h3>Umidificador</h3>
+        <div id="umidStatus">--</div>
+    </div>
+</div>
 
 <script>
 let chart;
@@ -197,6 +208,11 @@ function atualizarDados() {
                 chart.update();
             }
         });
+document.getElementById("ventoinhaStatus").innerText =
+ultimo.ventoinha ? "🟢 Ligada" : "🔴 Desligada";
+
+document.getElementById("umidStatus").innerText =
+ultimo.umidificador ? "🟢 Ligado" : "🔴 Desligado";
 }
 
 setInterval(atualizarDados, 3000);
