@@ -199,6 +199,13 @@ function atualizarDados() {
             document.getElementById("temp").innerText = ultimo.temperatura.toFixed(1);
             document.getElementById("umid").innerText = ultimo.umidade.toFixed(1);
 
+            // ✅ AGORA CERTO
+            document.getElementById("ventoinhaStatus").innerText =
+                ultimo.ventoinha ? "🟢 Ligada" : "🔴 Desligada";
+
+            document.getElementById("umidStatus").innerText =
+                ultimo.umidificador ? "🟢 Ligado" : "🔴 Desligado";
+
             if (!chart) {
                 criarGrafico(labels, temperaturas, umidades);
             } else {
@@ -208,11 +215,6 @@ function atualizarDados() {
                 chart.update();
             }
         });
-document.getElementById("ventoinhaStatus").innerText =
-ultimo.ventoinha ? "🟢 Ligada" : "🔴 Desligada";
-
-document.getElementById("umidStatus").innerText =
-ultimo.umidificador ? "🟢 Ligado" : "🔴 Desligado";
 }
 
 setInterval(atualizarDados, 3000);
