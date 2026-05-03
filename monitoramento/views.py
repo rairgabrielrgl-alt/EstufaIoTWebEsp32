@@ -51,3 +51,16 @@ def criar_admin(request):
     if not User.objects.filter(username='admin').exists():
         User.objects.create_superuser('admin', 'admin@email.com', '123456')
     return JsonResponse({'status': 'ok'})
+
+estado_umidificador = "off"
+
+def controle(request):
+    global estado_umidificador
+
+    if request.method == "POST":
+        estado_umidificador = request.POST.get("umidificador")
+
+    return JsonResponse({"status": estado_umidificador})    
+
+def estado(request):
+ return JsonResponse({"umidificador": estado_umidificador})

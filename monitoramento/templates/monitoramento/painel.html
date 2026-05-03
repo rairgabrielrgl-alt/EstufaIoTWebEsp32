@@ -221,5 +221,24 @@ setInterval(atualizarDados, 3000);
 atualizarDados();
 </script>
 
+```
+<h2>Controle do Umidificador</h2>
+
+<form method="post" action="/monitoramento/controle/">
+    {% csrf_token %}
+    <button type="submit" name="umidificador" value="on">
+        Ligar Umidificador
+    </button>
+
+    <button type="submit" name="umidificador" value="off">
+        Desligar Umidificador
+    </button>
+</form>
+
+<h3>Status atual: {{ estado }}</h3>
+```
+
+
+
 </body>
 </html>
