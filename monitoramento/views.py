@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import LeituraSensor
 import json
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 @csrf_exempt
 def receber_dados(request):
@@ -60,7 +60,7 @@ def controle(request):
     if request.method == "POST":
         estado_umidificador = request.POST.get("umidificador")
 
-    return JsonResponse({"status": estado_umidificador})    
+    return redirect('painel') 
 
 def estado(request):
  return JsonResponse({"umidificador": estado_umidificador})
