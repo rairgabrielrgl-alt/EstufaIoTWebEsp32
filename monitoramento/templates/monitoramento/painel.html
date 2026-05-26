@@ -3,7 +3,6 @@
 <head>
     <title>Monitoramento</title>
 
-    <!-- 🔥 RESPONSIVIDADE -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,16 +21,14 @@
             font-size: 20px;
         }
 
-        /* 🔥 CONTAINER FLEXÍVEL */
         .container {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 10px;
-            flex-wrap: wrap; /* 🔥 quebra no celular */
+            flex-wrap: wrap;
         }
 
-        /* 🔥 CARDS RESPONSIVOS */
         .card {
             background: #1e293b;
             padding: 15px;
@@ -44,22 +41,30 @@
             font-weight: bold;
         }
 
-        /* 🔥 GRÁFICO AJUSTADO */
         .grafico-container {
             width: 95%;
             max-width: 500px;
-            height: 200px; /* 🔥 menor (sem scroll) */
+            height: 200px;
             margin: 10px auto;
         }
 
-        /* 🔥 MOBILE EXTRA */
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         @media (max-width: 480px) {
+
             h1 {
                 font-size: 18px;
             }
 
             .card {
-                width: 45%; /* dois lado a lado */
+                width: 45%;
             }
 
             .valor {
@@ -78,6 +83,7 @@
 <h1>🌡️ Monitoramento da Estufa</h1>
 
 <div class="container">
+
     <div class="card">
         <h3>Temperatura</h3>
         <div class="valor" id="temp">--</div>
@@ -89,12 +95,15 @@
         <div class="valor" id="umid">--</div>
         <div>%</div>
     </div>
+
 </div>
 
 <div class="grafico-container">
     <canvas id="grafico"></canvas>
 </div>
+
 <div class="container">
+
     <div class="card">
         <h3>Ventoinha</h3>
         <div id="ventoinhaStatus">--</div>
@@ -104,125 +113,8 @@
         <h3>Umidificador</h3>
         <div id="umidStatus">--</div>
     </div>
+
 </div>
-
-<script>
-let chart;
-
-function criarGrafico(labels, temperaturas, umidades) {
-    const ctx = document.getElementById('grafico').getContext('2d');
-
-    chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Temperatura (°C)',
-                    data: temperaturas,
-                    borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239,68,68,0.2)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 0,
-                    yAxisID: 'yTemp'
-                },
-                {
-                    label: 'Umidade (%)',
-                    data: umidades,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59,130,246,0.2)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 0,
-                    yAxisID: 'yUmid'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: "white"
-                    }
-                }
-            },
-            scales: {
-                yTemp: {
-                    type: 'linear',
-                    position: 'left',
-                    ticks: { color: '#ef4444' },
-                    grid: { color: "rgba(255,255,255,0.05)" }
-                },
-                yUmid: {
-                    type: 'linear',
-                    position: 'right',
-                    ticks: { color: '#3b82f6' },
-                    grid: { drawOnChartArea: false }
-                },
-                x: {
-                    ticks: { color: "white" }
-                }
-            }
-        }
-    });
-}
-
-function atualizarDados() {
-    fetch('/monitoramento/api/?t=' + new Date().getTime())
-        .then(res => res.json())
-        .then(data => {
-
-            if (!data || data.length === 0) return;
-
-            let labels = [];
-            let temperaturas = [];
-            let umidades = [];
-
-            data.forEach(item => {
-                let hora = new Date(item.data).toLocaleTimeString();
-                labels.push(hora);
-                temperaturas.push(item.temperatura);
-                umidades.push(item.umidade);
-            });
-
-            let ultimo = data[data.length - 1];
-
-            document.getElementById("temp").innerText = ultimo.temperatura.toFixed(1);
-            document.getElementById("umid").innerText = ultimo.umidade.toFixed(1);
-
-            // ✅ AGORA CERTO
-            document.getElementById("ventoinhaStatus").innerText =
-                ultimo.ventoinha ? "🟢 Ligada" : "🔴 Desligada";
-
-            document.getElementById("umidStatus").innerText =
-                ultimo.umidificador ? "🟢 Ligado" : "🔴 Desligado";
-
-            if (!chart) {
-                criarGrafico(labels, temperaturas, umidades);
-            } else {
-                chart.data.labels = labels;
-                chart.data.datasets[0].data = temperaturas;
-                chart.data.datasets[1].data = umidades;
-                chart.update();
-            }
-        });
-}
-
-setInterval(atualizarDados, 3000);
-atualizarDados();
-</script>
-
-```
-<h2>Controle do Umidificador</h2>
 
 <h2>Controle do Umidificador</h2>
 
@@ -242,16 +134,164 @@ atualizarDados();
     Status atual: --
 </h3>
 
-<h3>Status atual: {{ estado }}</h3>
-```
+<script>
+
+let chart;
+
+function criarGrafico(labels, temperaturas, umidades) {
+
+    const ctx = document.getElementById('grafico').getContext('2d');
+
+    chart = new Chart(ctx, {
+        type: 'line',
+
+        data: {
+            labels: labels,
+
+            datasets: [
+                {
+                    label: 'Temperatura (°C)',
+                    data: temperaturas,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239,68,68,0.2)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    yAxisID: 'yTemp'
+                },
+
+                {
+                    label: 'Umidade (%)',
+                    data: umidades,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.2)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    yAxisID: 'yUmid'
+                }
+            ]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "white"
+                    }
+                }
+            },
+
+            scales: {
+
+                yTemp: {
+                    type: 'linear',
+                    position: 'left',
+
+                    ticks: {
+                        color: '#ef4444'
+                    },
+
+                    grid: {
+                        color: "rgba(255,255,255,0.05)"
+                    }
+                },
+
+                yUmid: {
+                    type: 'linear',
+                    position: 'right',
+
+                    ticks: {
+                        color: '#3b82f6'
+                    },
+
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                },
+
+                x: {
+                    ticks: {
+                        color: "white"
+                    }
+                }
+            }
+        }
+    });
+}
+
+function atualizarDados() {
+
+    fetch('/monitoramento/api/?t=' + new Date().getTime())
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        if (!data || data.length === 0) return;
+
+        let labels = [];
+        let temperaturas = [];
+        let umidades = [];
+
+        data.forEach(item => {
+
+            let hora = new Date(item.data).toLocaleTimeString();
+
+            labels.push(hora);
+            temperaturas.push(item.temperatura);
+            umidades.push(item.umidade);
+        });
+
+        let ultimo = data[data.length - 1];
+
+        document.getElementById("temp").innerText =
+            ultimo.temperatura.toFixed(1);
+
+        document.getElementById("umid").innerText =
+            ultimo.umidade.toFixed(1);
+
+        document.getElementById("ventoinhaStatus").innerText =
+            ultimo.ventoinha ? "🟢 Ligada" : "🔴 Desligada";
+
+        document.getElementById("umidStatus").innerText =
+            ultimo.umidificador ? "🟢 Ligado" : "🔴 Desligado";
+
+        if (!chart) {
+
+            criarGrafico(labels, temperaturas, umidades);
+
+        } else {
+
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = temperaturas;
+            chart.data.datasets[1].data = umidades;
+
+            chart.update();
+        }
+    });
+}
+
 function controlarUmidificador(valor) {
 
     fetch('/monitoramento/controle/', {
+
         method: 'POST',
 
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken':
+                document.querySelector('[name=csrfmiddlewaretoken]').value
         },
 
         body: 'umidificador=' + valor
@@ -270,6 +310,11 @@ function controlarUmidificador(valor) {
     });
 }
 
+setInterval(atualizarDados, 3000);
+
+atualizarDados();
+
+</script>
 
 </body>
 </html>
