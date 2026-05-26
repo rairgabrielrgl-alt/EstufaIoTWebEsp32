@@ -60,10 +60,13 @@ def controle(request):
     if request.method == "POST":
         estado_umidificador = request.POST.get("umidificador")
 
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({"status": estado_umidificador})
+        return JsonResponse({
+            "status": estado_umidificador
+        })
 
-    return redirect('monitoramento:painel')
+    return JsonResponse({
+        "status": estado_umidificador
+    })
 
 def estado(request):
  return JsonResponse({"umidificador": estado_umidificador})

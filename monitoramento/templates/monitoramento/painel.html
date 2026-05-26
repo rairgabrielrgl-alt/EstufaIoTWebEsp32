@@ -224,20 +224,51 @@ atualizarDados();
 ```
 <h2>Controle do Umidificador</h2>
 
-<form method="post" action="/monitoramento/controle/">
+<h2>Controle do Umidificador</h2>
+
+<form id="formUmidificador">
     {% csrf_token %}
-    <button type="submit" name="umidificador" value="on">
+
+    <button type="button" onclick="controlarUmidificador('on')">
         Ligar Umidificador
     </button>
 
-    <button type="submit" name="umidificador" value="off">
+    <button type="button" onclick="controlarUmidificador('off')">
         Desligar Umidificador
     </button>
 </form>
 
+<h3 id="statusUmidificador">
+    Status atual: --
+</h3>
+
 <h3>Status atual: {{ estado }}</h3>
 ```
+function controlarUmidificador(valor) {
 
+    fetch('/monitoramento/controle/', {
+        method: 'POST',
+
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+
+        body: 'umidificador=' + valor
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        let texto = data.status === 'on'
+            ? '🟢 Ligado'
+            : '🔴 Desligado';
+
+        document.getElementById("statusUmidificador").innerText =
+            'Status atual: ' + texto;
+    });
+}
 
 
 </body>
