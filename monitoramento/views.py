@@ -63,7 +63,7 @@ def controle(request):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({"status": estado_umidificador})
 
-    return redirect('painel')
+    return redirect('painel/')
 
 def estado(request):
  return JsonResponse({"umidificador": estado_umidificador})
