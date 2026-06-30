@@ -18,18 +18,29 @@ def receber_dados(request):
     if request.method == "POST":
 
         try:
+
             data = json.loads(request.body)
 
-            temp = data.get("temperatura")
-            umid = data.get("umidade")
+            temp_int = data.get("temperatura_interna")
+            umid_int = data.get("umidade_interna")
+
+            temp_ext = data.get("temperatura_externa")
+            umid_ext = data.get("umidade_externa")
+
             vent = data.get("ventoinha")
             umidif = data.get("umidificador")
 
             LeituraSensor.objects.create(
-                temperatura=temp,
-                umidade=umid,
+
+                temperatura_interna=temp_int,
+                umidade_interna=umid_int,
+
+                temperatura_externa=temp_ext,
+                umidade_externa=umid_ext,
+
                 ventoinha=vent,
                 umidificador=umidif
+
             )
 
             return JsonResponse({
@@ -82,11 +93,18 @@ def api_dados(request):
         LeituraSensor.objects
         .order_by('-data')[:20]
         .values(
-            'temperatura',
-            'umidade',
+
+            'temperatura_interna',
+            'umidade_interna',
+
+            'temperatura_externa',
+            'umidade_externa',
+
             'ventoinha',
             'umidificador',
+
             'data'
+
         )
     )
 
