@@ -1,220 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>Painel Estufa</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        body {
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            text-align: center;
-            margin: 0;
-        }
-
-        h1 { margin: 10px; font-size: 20px; }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .card {
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 15px;
-            width: 160px;
-        }
-
-        .valor {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .grafico-container {
-            width: 95%;
-            max-width: 700px;
-            height: 300px;
-            margin: 15px auto;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Estufa IoT</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{margin:0;background:#0f172a;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px;text-align:center;font-size:28px;font-weight:bold}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;padding:15px}
+.card{background:#1e293b;border-radius:15px;padding:18px;text-align:center;transition:.25s;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.card:hover{transform:translateY(-5px)}
+.valor{font-size:34px;font-weight:bold;margin:8px 0}
+.status{font-size:20px}
+.grafico{background:#1e293b;margin:15px;border-radius:15px;padding:15px}
+canvas{height:320px!important}
+</style>
 </head>
-
 <body>
 
-<h1>🌡️ Painel da Estufa</h1>
+<header>🌱 Estufa IoT</header>
 
-<div class="container">
-
-    <div class="card">
-        <h3>Temp Interna</h3>
-        <div class="valor" id="tempInt">--</div> °C
-    </div>
-
-    <div class="card">
-        <h3>Umid Interna</h3>
-        <div class="valor" id="umidInt">--</div> %
-    </div>
-
-    <div class="card">
-        <h3>Temp Externa</h3>
-        <div class="valor" id="tempExt">--</div> °C
-    </div>
-
-    <div class="card">
-        <h3>Umid Externa</h3>
-        <div class="valor" id="umidExt">--</div> %
-    </div>
-
+<div class="cards">
+<div class="card"><h3>🌡️ Temp. Interna</h3><div class="valor" id="tempInt">--</div></div>
+<div class="card"><h3>🌡️ Temp. Externa</h3><div class="valor" id="tempExt">--</div></div>
+<div class="card"><h3>💧 Umid. Interna</h3><div class="valor" id="umiInt">--</div></div>
+<div class="card"><h3>💧 Umid. Externa</h3><div class="valor" id="umiExt">--</div></div>
+<div class="card"><h3>🌀 Ventoinha</h3><div class="status" id="vent">--</div></div>
+<div class="card"><h3>💦 Umidificador</h3><div class="status" id="umid">--</div></div>
 </div>
 
-<div class="grafico-container">
-    <canvas id="grafico"></canvas>
+<div class="grafico">
+<h2>Temperatura</h2>
+<canvas id="grafTemp"></canvas>
 </div>
 
-<div class="container">
-
-    <div class="card">
-        <h3>Ventoinha</h3>
-        <div id="vent">--</div>
-    </div>
-
-    <div class="card">
-        <h3>Umidificador</h3>
-        <div id="umid">--</div>
-    </div>
-
+<div class="grafico">
+<h2>Umidade</h2>
+<canvas id="grafUmid"></canvas>
 </div>
 
 <script>
+let grafTemp,grafUmid;
 
-let chart;
-
-function criarGrafico(labels, tInt, uInt, tExt, uExt) {
-
-    const ctx = document.getElementById('grafico').getContext('2d');
-
-    chart = new Chart(ctx, {
-        type: 'line',
-
-        data: {
-            labels: labels,
-
-            datasets: [
-                {
-                    label: 'Temp Interna',
-                    data: tInt,
-                    borderColor: '#ef4444',
-                    tension: 0.4,
-                    fill: false
-                },
-                {
-                    label: 'Temp Externa',
-                    data: tExt,
-                    borderColor: '#f97316',
-                    tension: 0.4,
-                    fill: false
-                },
-                {
-                    label: 'Umid Interna',
-                    data: uInt,
-                    borderColor: '#3b82f6',
-                    tension: 0.4,
-                    fill: false
-                },
-                {
-                    label: 'Umid Externa',
-                    data: uExt,
-                    borderColor: '#22c55e',
-                    tension: 0.4,
-                    fill: false
-                }
-            ]
-        },
-
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-
-            plugins: {
-                legend: { labels: { color: "white" } }
-            },
-
-            scales: {
-                x: { ticks: { color: "white" } },
-                y: { ticks: { color: "white" } }
-            }
-        }
-    });
+function novoGrafico(id,l1,l2,c1,c2){
+ return new Chart(document.getElementById(id),{
+ type:'line',
+ data:{labels:[],datasets:[
+ {label:l1,data:[],borderColor:c1,borderWidth:3,tension:.4,fill:false,
+ pointRadius:(ctx)=>ctx.dataIndex===ctx.dataset.data.length-1?5:0,
+ pointHoverRadius:7},
+ {label:l2,data:[],borderColor:c2,borderWidth:3,tension:.4,fill:false,
+ pointRadius:(ctx)=>ctx.dataIndex===ctx.dataset.data.length-1?5:0,
+ pointHoverRadius:7}
+ ]},
+ options:{
+ responsive:true,
+ animation:{duration:700,easing:'easeOutQuart'},
+ plugins:{legend:{labels:{color:'white'}}},
+ scales:{
+ x:{ticks:{color:'white'}},
+ y:{ticks:{color:'white'},grace:'5%'}
+ }
+ }
+ });
 }
 
-function atualizar() {
+grafTemp=novoGrafico("grafTemp","Interna","Externa","#ef4444","#f59e0b");
+grafUmid=novoGrafico("grafUmid","Interna","Externa","#3b82f6","#22c55e");
 
-    fetch('/monitoramento/api/?t=' + new Date().getTime())
+async function atualizar(){
+ const r=await fetch('/monitoramento/api/?t='+Date.now());
+ const dados=await r.json();
+ if(!dados.length)return;
 
-    .then(r => r.json())
-    .then(data => {
+ const ultimos=dados.slice(-30);
 
-        if (!data.length) return;
+ const labels=[],ti=[],te=[],ui=[],ue=[];
 
-        let labels = [];
-        let tInt = [];
-        let uInt = [];
-        let tExt = [];
-        let uExt = [];
+ ultimos.forEach(i=>{
+ labels.push(new Date(i.data).toLocaleTimeString());
+ ti.push(i.temperatura_interna);
+ te.push(i.temperatura_externa);
+ ui.push(i.umidade_interna);
+ ue.push(i.umidade_externa);
+ });
 
-        data.forEach(item => {
+ const u=ultimos[ultimos.length-1];
 
-            let hora = new Date(item.data).toLocaleTimeString();
+ tempInt.innerHTML=u.temperatura_interna.toFixed(1)+'°C';
+ tempExt.innerHTML=u.temperatura_externa.toFixed(1)+'°C';
+ umiInt.innerHTML=u.umidade_interna.toFixed(1)+'%';
+ umiExt.innerHTML=u.umidade_externa.toFixed(1)+'%';
 
-            labels.push(hora);
+ vent.innerHTML=u.ventoinha?'🟢 Ligada':'🔴 Desligada';
+ umid.innerHTML=u.umidificador?'🟢 Ligado':'🔴 Desligado';
 
-            tInt.push(item.temperatura_interna);
-            uInt.push(item.umidade_interna);
+ grafTemp.data.labels=labels;
+ grafTemp.data.datasets[0].data=ti;
+ grafTemp.data.datasets[1].data=te;
+ grafTemp.update();
 
-            tExt.push(item.temperatura_externa);
-            uExt.push(item.umidade_externa);
-        });
-
-        let last = data[data.length - 1];
-
-        document.getElementById("tempInt").innerText = last.temperatura_interna.toFixed(1);
-        document.getElementById("umidInt").innerText = last.umidade_interna.toFixed(1);
-
-        document.getElementById("tempExt").innerText = last.temperatura_externa.toFixed(1);
-        document.getElementById("umidExt").innerText = last.umidade_externa.toFixed(1);
-
-        document.getElementById("vent").innerText =
-            last.ventoinha ? "🟢 ON" : "🔴 OFF";
-
-        document.getElementById("umid").innerText =
-            last.umidificador ? "🟢 ON" : "🔴 OFF";
-
-        if (!chart) {
-            criarGrafico(labels, tInt, uInt, tExt, uExt);
-        } else {
-            chart.data.labels = labels;
-
-            chart.data.datasets[0].data = tInt;
-            chart.data.datasets[1].data = tExt;
-            chart.data.datasets[2].data = uInt;
-            chart.data.datasets[3].data = uExt;
-
-            chart.update();
-        }
-    });
+ grafUmid.data.labels=labels;
+ grafUmid.data.datasets[0].data=ui;
+ grafUmid.data.datasets[1].data=ue;
+ grafUmid.update();
 }
-
-setInterval(atualizar, 3000);
+setInterval(atualizar,3000);
 atualizar();
-
 </script>
 
 </body>
