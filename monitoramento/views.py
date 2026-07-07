@@ -21,44 +21,51 @@ def receber_dados(request):
 
             data = json.loads(request.body)
 
-            temp_int = data.get("temperatura_interna")
-            umid_int = data.get("umidade_interna")
+            sensor = data.get("sensor")
 
-            temp_ext = data.get("temperatura_externa")
-            umid_ext = data.get("umidade_externa")
+            temperatura = data.get("temperatura")
 
-            vent = data.get("ventoinha")
-            umidif = data.get("umidificador")
+            umidade = data.get("umidade")
+
+            ventoinha = data.get("ventoinha", False)
+
+            umidificador = data.get("umidificador", False)
 
             LeituraSensor.objects.create(
 
-                temperatura_interna=temp_int,
-                umidade_interna=umid_int,
+                sensor=sensor,
 
-                temperatura_externa=temp_ext,
-                umidade_externa=umid_ext,
+                temperatura=temperatura,
 
-                ventoinha=vent,
-                umidificador=umidif
+                umidade=umidade,
+
+                ventoinha=ventoinha,
+
+                umidificador=umidificador
 
             )
 
             return JsonResponse({
+
                 "status": "salvo"
+
             })
 
         except Exception as e:
 
-            print("ERRO:", e)
+            print(e)
 
             return JsonResponse({
+
                 "status": "erro"
+
             })
 
     return JsonResponse({
-        "status": "erro"
-    })
 
+        "status": "erro"
+
+    })
 
 # =========================================
 # PAINEL
