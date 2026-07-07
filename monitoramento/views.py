@@ -95,30 +95,40 @@ def painel(request):
 
 def api_dados(request):
 
-    dados = list(
-
+    interno = (
         LeituraSensor.objects
-        .order_by('-data')[:20]
-        .values(
-
-            'temperatura_interna',
-            'umidade_interna',
-
-            'temperatura_externa',
-            'umidade_externa',
-
-            'ventoinha',
-            'umidificador',
-
-            'data'
-
-        )
+        .filter(sensor="interno")
+        .order_by("-data")[:30]
     )
 
-    return JsonResponse(
-        dados[::-1],
-        safe=False
+    externo = (
+        LeituraSensor.objects
+        .filter(sensor="externo")
+        .order_by("-data")[:30]
     )
+
+    tamanho = min(len(interno), len(externo))
+
+    lista = []
+
+    for i in range(tamanho):
+
+        lista.append({
+
+            "temperatura_interna": interno[tamanho-1-i].temperatura,
+            "umidade_interna": interno[tamanho-1-i].umidade,
+
+            "temperatura_externa": externo[tamanho-1-i].temperatura,
+            "umidade_externa": externo[tamanho-1-i].umidade,
+
+            "ventoinha": interno[tamanho-1-i].ventoinha,
+            "umidificador": interno[tamanho-1-i].umidificador,
+
+            "data": interno[tamanho-1-i].data
+
+        })
+
+    return JsonResponse(lista, safe=False)
 
 
 # =========================================
