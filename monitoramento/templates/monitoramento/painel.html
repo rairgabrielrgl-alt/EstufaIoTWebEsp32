@@ -93,9 +93,11 @@ async function atualizar(){
  tempExt.innerHTML=u.temperatura_externa.toFixed(1)+'°C';
  umiInt.innerHTML=u.umidade_interna.toFixed(1)+'%';
  umiExt.innerHTML=u.umidade_externa.toFixed(1)+'%';
+ lamp.innerHTML=u.umidade_interna.toFixed(1)+'%';
 
  vent.innerHTML=u.ventoinha?'🟢 Ligada':'🔴 Desligada';
  umid.innerHTML=u.umidificador?'🟢 Ligado':'🔴 Desligado';
+ lamp.innerHTML=u.lampada?'🟢 Ligada':'🔴 Desligada';
 
  grafTemp.data.labels=labels;
  grafTemp.data.datasets[0].data=ti;
