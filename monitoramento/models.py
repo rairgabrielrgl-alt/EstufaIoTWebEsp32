@@ -17,7 +17,7 @@ class LeituraSensor(models.Model):
     ventoinha = models.BooleanField(default=False)
 
     umidificador = models.BooleanField(default=False)
-
+    lampada = models.BooleanField(default=False)
     data = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
