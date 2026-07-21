@@ -116,18 +116,22 @@ def api_dados(request):
 
     for i in range(tamanho):
 
+        dadoInterno = interno[tamanho - 1 - i]
+        dadoExterno = externo[tamanho - 1 - i]
+
         lista.append({
 
-            "temperatura_interna": interno[tamanho-1-i].temperatura,
-            "umidade_interna": interno[tamanho-1-i].umidade,
+            "temperatura_interna": dadoInterno.temperatura,
+            "umidade_interna": dadoInterno.umidade,
 
-            "temperatura_externa": externo[tamanho-1-i].temperatura,
-            "umidade_externa": externo[tamanho-1-i].umidade,
+            "temperatura_externa": dadoExterno.temperatura,
+            "umidade_externa": dadoExterno.umidade,
 
-            "ventoinha": interno[tamanho-1-i].ventoinha,
-            "umidificador": interno[tamanho-1-i].umidificador,
+            "ventoinha": dadoInterno.ventoinha,
+            "umidificador": dadoInterno.umidificador,
+            "lampada": dadoInterno.lampada,
 
-            "data": interno[tamanho-1-i].data
+            "data": dadoInterno.data
 
         })
 
