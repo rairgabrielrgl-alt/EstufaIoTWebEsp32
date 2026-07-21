@@ -30,7 +30,6 @@ def receber_dados(request):
             ventoinha = data.get("ventoinha", False)
 
             umidificador = data.get("umidificador", False)
-
             lampada = data.get("lampada", False)
             LeituraSensor.objects.create(
 
@@ -42,9 +41,10 @@ def receber_dados(request):
 
                 ventoinha=ventoinha,
 
-                umidificador=umidificador
-
+                umidificador=umidificador,
+                
                 lampada=lampada
+
 
             )
 
