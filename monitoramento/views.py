@@ -241,7 +241,11 @@ def painel_admin(request):
                 acionamentos_lampada += 1
 
         anterior = atual
-
+    historico = (
+    LeituraSensor.objects
+    .filter(sensor="interno")
+    .order_by("data")
+    )    
     contexto = {
 
     "acionamentos_peltier": acionamentos_peltier,
@@ -255,11 +259,7 @@ def painel_admin(request):
     "historico": historico,
 
         }
-    historico = (
-        LeituraSensor.objects
-        .filter(sensor="interno")
-        .order_by("-data")[:100]
-    )
+    
 
     historico = reversed(historico)
 
