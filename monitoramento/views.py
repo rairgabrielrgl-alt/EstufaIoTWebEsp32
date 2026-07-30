@@ -5,8 +5,9 @@ from django.contrib.auth.models import User
 from datetime import timedelta
 from .models import LeituraSensor
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
 import json
-
 
 # =========================================
 # RECEBER DADOS DO ESP32
@@ -255,8 +256,7 @@ def painel_admin(request):
                   "monitoramento/admin.html",
                   contexto)
 
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
+
 
 def admin_login(request):
 

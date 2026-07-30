@@ -16,9 +16,6 @@ urlpatterns = [
 
     # estado atual
     path('estado/', views.estado, name='estado'),
-    
-    # admin
-    path("admin/", views.painel_admin, name="admin"),
     # login do admin 
     path("admin-login/", views.admin_login, name="admin_login"),
     path("painel-admin/", views.painel_admin, name="painel_admin"),
