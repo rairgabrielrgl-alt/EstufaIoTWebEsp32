@@ -2,6 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from datetime import timedelta
 
 from .models import LeituraSensor
 
@@ -255,4 +256,3 @@ def painel_admin(request):
                   "monitoramento/admin.html",
                   contexto)
 
-    
