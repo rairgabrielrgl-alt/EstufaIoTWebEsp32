@@ -243,14 +243,25 @@ def painel_admin(request):
         anterior = atual
 
     contexto = {
-        "acionamentos_peltier": acionamentos_peltier,
-        "acionamentos_umidificador": acionamentos_umidificador,
-        "acionamentos_lampada": acionamentos_lampada,
 
-        "tempo_peltier": tempo_peltier,
-        "tempo_umidificador": tempo_umidificador,
-        "tempo_lampada": tempo_lampada,
-    }
+    "acionamentos_peltier": acionamentos_peltier,
+    "acionamentos_umidificador": acionamentos_umidificador,
+    "acionamentos_lampada": acionamentos_lampada,
+
+    "tempo_peltier": tempo_peltier,
+    "tempo_umidificador": tempo_umidificador,
+    "tempo_lampada": tempo_lampada,
+
+    "historico": historico,
+
+        }
+    historico = (
+        LeituraSensor.objects
+        .filter(sensor="interno")
+        .order_by("-data")[:100]
+    )
+
+    historico = reversed(historico)
 
     return render(request,
                   "monitoramento/admin.html",

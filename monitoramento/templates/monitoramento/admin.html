@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 
 <title>Painel Administrativo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -46,7 +47,12 @@ font-size:30px;
 font-weight:bold;
 
 }
+canvas{
 
+    width:100% !important;
+    height:350px !important;
+
+}
 </style>
 
 </head>
@@ -102,7 +108,182 @@ Tempo ligada:
 <b>{{ tempo_lampada }}</b>
 
 </div>
+<div class="card">
 
+<h2>📈 Histórico dos Atuadores</h2>
+
+<canvas id="graficoAcionamentos"></canvas>
+
+</div>
+<script>
+
+const labels = [
+
+{% for item in historico %}
+
+"{{ item.data|date:'H:i:s' }}",
+
+{% endfor %}
+
+];
+
+const peltier = [
+
+{% for item in historico %}
+
+{{ item.ventoinha|yesno:"1,0" }},
+
+{% endfor %}
+
+];
+
+const umidificador = [
+
+{% for item in historico %}
+
+{{ item.umidificador|yesno:"1,0" }},
+
+{% endfor %}
+
+];
+
+const lampada = [
+
+{% for item in historico %}
+
+{{ item.lampada|yesno:"1,0" }},
+
+{% endfor %}
+
+];
+
+new Chart(document.getElementById("graficoAcionamentos"),{
+
+type:"line",
+
+data:{
+
+labels:labels,
+
+datasets:[
+
+{
+
+label:"Peltier",
+
+data:peltier,
+
+borderColor:"#3b82f6",
+
+backgroundColor:"#3b82f6",
+
+borderWidth:3,
+
+fill:false,
+
+stepped:true
+
+},
+
+{
+
+label:"Umidificador",
+
+data:umidificador,
+
+borderColor:"#22c55e",
+
+backgroundColor:"#22c55e",
+
+borderWidth:3,
+
+fill:false,
+
+stepped:true
+
+},
+
+{
+
+label:"Lâmpada",
+
+data:lampada,
+
+borderColor:"#f59e0b",
+
+backgroundColor:"#f59e0b",
+
+borderWidth:3,
+
+fill:false,
+
+stepped:true
+
+}
+
+]
+
+},
+
+options:{
+
+responsive:true,
+
+plugins:{
+
+legend:{
+
+labels:{
+
+color:"white"
+
+}
+
+}
+
+},
+
+scales:{
+
+x:{
+
+ticks:{
+
+color:"white"
+
+}
+
+},
+
+y:{
+
+min:0,
+
+max:1,
+
+ticks:{
+
+stepSize:1,
+
+color:"white",
+
+callback:function(value){
+
+return value==1?"Ligado":"Desligado";
+
+}
+
+}
+
+}
+
+}
+
+}
+
+});
+
+</script>
 </body>
 
 </html>
