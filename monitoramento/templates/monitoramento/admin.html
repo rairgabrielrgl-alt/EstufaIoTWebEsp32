@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Painel Administrativo</title>
+
+<style>
+
+body{
+
+background:#111827;
+
+color:white;
+
+font-family:Arial;
+
+padding:30px;
+
+}
+
+.card{
+
+background:#1f2937;
+
+padding:20px;
+
+margin-bottom:20px;
+
+border-radius:12px;
+
+}
+
+h1{
+
+text-align:center;
+
+}
+
+.valor{
+
+font-size:30px;
+
+font-weight:bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>📊 Painel Administrativo</h1>
+
+<div class="card">
+
+<h2>🌀 Peltier</h2>
+
+<div class="valor">
+
+{{ acionamentos_peltier }} acionamentos
+
+</div>
+
+Tempo ligada:
+
+<b>{{ tempo_peltier }}</b>
+
+</div>
+
+<div class="card">
+
+<h2>💧 Umidificador</h2>
+
+<div class="valor">
+
+{{ acionamentos_umidificador }} acionamentos
+
+</div>
+
+Tempo ligado:
+
+<b>{{ tempo_umidificador }}</b>
+
+</div>
+
+<div class="card">
+
+<h2>💡 Lâmpada</h2>
+
+<div class="valor">
+
+{{ acionamentos_lampada }} acionamentos
+
+</div>
+
+Tempo ligada:
+
+<b>{{ tempo_lampada }}</b>
+
+</div>
+
+</body>
+
+</html>

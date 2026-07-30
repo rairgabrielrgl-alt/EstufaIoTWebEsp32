@@ -192,3 +192,67 @@ def estado(request):
     return JsonResponse({
         "umidificador": estado_umidificador
     })
+
+from django.shortcuts import render
+from .models import LeituraSensor
+from datetime import timedelta
+
+
+def painel_admin(request):
+
+    leituras = LeituraSensor.objects.order_by("data")
+
+    acionamentos_peltier = 0
+    acionamentos_umidificador = 0
+    acionamentos_lampada = 0
+
+    tempo_peltier = timedelta()
+    tempo_umidificador = timedelta()
+    tempo_lampada = timedelta()
+
+    anterior = None
+
+    for atual in leituras:
+
+        if anterior:
+
+            intervalo = atual.data - anterior.data
+
+            # Tempo ligada
+            if anterior.ventoinha:
+                tempo_peltier += intervalo
+
+            if anterior.umidificador:
+                tempo_umidificador += intervalo
+
+            if getattr(anterior, "lampada", False):
+                tempo_lampada += intervalo
+
+            # Contagem de acionamentos
+            if not anterior.ventoinha and atual.ventoinha:
+                acionamentos_peltier += 1
+
+            if not anterior.umidificador and atual.umidificador:
+                acionamentos_umidificador += 1
+
+            if (not getattr(anterior, "lampada", False)
+                    and getattr(atual, "lampada", False)):
+                acionamentos_lampada += 1
+
+        anterior = atual
+
+    contexto = {
+        "acionamentos_peltier": acionamentos_peltier,
+        "acionamentos_umidificador": acionamentos_umidificador,
+        "acionamentos_lampada": acionamentos_lampada,
+
+        "tempo_peltier": tempo_peltier,
+        "tempo_umidificador": tempo_umidificador,
+        "tempo_lampada": tempo_lampada,
+    }
+
+    return render(request,
+                  "monitoramento/admin.html",
+                  contexto)
+
+    

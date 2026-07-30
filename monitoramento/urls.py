@@ -16,4 +16,7 @@ urlpatterns = [
 
     # estado atual
     path('estado/', views.estado, name='estado'),
+    
+    # admin
+    path("admin/", views.painel_admin, name="admin"),
 ]
