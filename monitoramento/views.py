@@ -45,30 +45,27 @@ def receber_dados(request):
 
             )
 
-            # ==========================
-            # Registrar eventos
-            # ==========================
+            # Registrar eventos somente do sensor interno
+            if sensor == "interno":
 
-            for nome, estado in [
+                for nome, estado in [
 
-                ("Peltier", leitura.ventoinha),
+                    ("Peltier", leitura.ventoinha),
+                    ("Umidificador", leitura.umidificador),
+                    ("Lampada", leitura.lampada),
 
-                ("Umidificador", leitura.umidificador),
+                ]:
 
-                ("Lampada", leitura.lampada),
+                    ultimo = EventoAcionamento.objects.filter(
+                        atuador=nome
+                    ).order_by("-data").first()
 
-            ]:
+                    if ultimo is None or ultimo.ligado != estado:
 
-                ultimo = EventoAcionamento.objects.filter(
-                    atuador=nome
-                ).order_by("-data").first()
-
-                if ultimo is None or ultimo.ligado != estado:
-
-                    EventoAcionamento.objects.create(
-                        atuador=nome,
-                        ligado=estado
-                    )
+                        EventoAcionamento.objects.create(
+                            atuador=nome,
+                            ligado=estado
+                        )
 
             return JsonResponse({
                 "status": "salvo"
@@ -79,7 +76,8 @@ def receber_dados(request):
             print(e)
 
             return JsonResponse({
-                "status": "erro"
+                "status": "erro",
+                "mensagem": str(e)
             })
 
     return JsonResponse({
