@@ -117,171 +117,115 @@ Tempo ligada:
 </div>
 <script>
 
-const labels = [
-
-{% for item in historico %}
-
-"{{ item.data|date:'H:i:s' }}",
-
-{% endfor %}
-
-];
-
-const peltier = [
-
-{% for item in historico %}
-
-{{ item.ventoinha|yesno:"1,0" }},
-
-{% endfor %}
-
-];
-
-const umidificador = [
-
-{% for item in historico %}
-
-{{ item.umidificador|yesno:"1,0" }},
-
-{% endfor %}
-
-];
-
-const lampada = [
-
-{% for item in historico %}
-
-{{ item.lampada|yesno:"1,0" }},
-
-{% endfor %}
-
-];
-
-new Chart(document.getElementById("graficoAcionamentos"),{
-
-type:"line",
-
-data:{
-
-labels:labels,
-
-datasets:[
-
-{
-
-label:"Peltier",
-
-data:peltier,
-
-borderColor:"#3b82f6",
-
-backgroundColor:"#3b82f6",
-
-borderWidth:3,
-
-fill:false,
-
-stepped:true
-
-},
-
-{
-
-label:"Umidificador",
-
-data:umidificador,
-
-borderColor:"#22c55e",
-
-backgroundColor:"#22c55e",
-
-borderWidth:3,
-
-fill:false,
-
-stepped:true
-
-},
-
-{
-
-label:"Lâmpada",
-
-data:lampada,
-
-borderColor:"#f59e0b",
-
-backgroundColor:"#f59e0b",
-
-borderWidth:3,
-
-fill:false,
-
-stepped:true
-
-}
-
-]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-
-legend:{
-
-labels:{
-
-color:"white"
-
-}
-
-}
-
-},
-
-scales:{
-
-x:{
-
-ticks:{
-
-color:"white"
-
-}
-
-},
-
-y:{
-
-min:0,
-
-max:1,
-
-ticks:{
-
-stepSize:1,
-
-color:"white",
-
-callback:function(value){
-
-return value==1?"Ligado":"Desligado";
-
-}
-
-}
-
-}
-
-}
-
-}
+const grafico = new Chart(document.getElementById("graficoAcionamentos"),{
+
+    type:"line",
+
+    data:{
+        labels:[],
+        datasets:[
+        {
+            label:"Peltier",
+            data:[],
+            borderColor:"#3b82f6",
+            borderWidth:3,
+            fill:false,
+            stepped:true
+        },
+        {
+            label:"Umidificador",
+            data:[],
+            borderColor:"#22c55e",
+            borderWidth:3,
+            fill:false,
+            stepped:true
+        },
+        {
+            label:"Lâmpada",
+            data:[],
+            borderColor:"#f59e0b",
+            borderWidth:3,
+            fill:false,
+            stepped:true
+        }
+        ]
+    },
+
+    options:{
+        responsive:true,
+
+        plugins:{
+            legend:{
+                labels:{
+                    color:"white"
+                }
+            }
+        },
+
+        scales:{
+
+            x:{
+                ticks:{
+                    color:"white"
+                }
+            },
+
+            y:{
+                min:0,
+                max:1,
+
+                ticks:{
+                    stepSize:1,
+                    color:"white",
+
+                    callback:function(v){
+
+                        return v==1?"Ligado":"Desligado";
+
+                    }
+                }
+            }
+        }
+    }
 
 });
+
+
+async function atualizarGrafico(){
+
+    const resposta = await fetch("/monitoramento/api/?t="+Date.now());
+
+    const dados = await resposta.json();
+
+    if(dados.length==0) return;
+
+    let labels=[];
+    let peltier=[];
+    let umidificador=[];
+    let lampada=[];
+
+    dados.forEach(item=>{
+
+        labels.push(new Date(item.data).toLocaleTimeString());
+
+        peltier.push(item.ventoinha?1:0);
+        umidificador.push(item.umidificador?1:0);
+        lampada.push(item.lampada?1:0);
+
+    });
+
+    grafico.data.labels=labels;
+    grafico.data.datasets[0].data=peltier;
+    grafico.data.datasets[1].data=umidificador;
+    grafico.data.datasets[2].data=lampada;
+
+    grafico.update();
+
+}
+
+atualizarGrafico();
+
+setInterval(atualizarGrafico,3000);
 
 </script>
 </body>

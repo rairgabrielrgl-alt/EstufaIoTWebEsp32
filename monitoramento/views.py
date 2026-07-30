@@ -8,6 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 import json
+from django.shortcuts import render
+from .models import LeituraSensor
+from datetime import timedelta
 
 # =========================================
 # RECEBER DADOS DO ESP32
@@ -194,9 +197,7 @@ def estado(request):
         "umidificador": estado_umidificador
     })
 
-from django.shortcuts import render
-from .models import LeituraSensor
-from datetime import timedelta
+
 
 @login_required(login_url='/admin-login/')
 def painel_admin(request):
