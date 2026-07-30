@@ -3,9 +3,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from datetime import timedelta
-
 from .models import LeituraSensor
-
+from django.contrib.auth.decorators import login_required
 import json
 
 
@@ -198,7 +197,7 @@ from django.shortcuts import render
 from .models import LeituraSensor
 from datetime import timedelta
 
-
+@login_required(login_url='/admin-login/')
 def painel_admin(request):
 
     leituras = LeituraSensor.objects.order_by("data")
@@ -256,3 +255,25 @@ def painel_admin(request):
                   "monitoramento/admin.html",
                   contexto)
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+def admin_login(request):
+
+    if request.method == "POST":
+
+        usuario = request.POST["usuario"]
+        senha = request.POST["senha"]
+
+        user = authenticate(
+            request,
+            username=usuario,
+            password=senha
+        )
+
+        if user:
+
+            login(request, user)
+            return redirect("painel_admin")
+
+    return render(request, "monitoramento/login.html")
