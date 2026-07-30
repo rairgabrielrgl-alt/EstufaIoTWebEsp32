@@ -27,3 +27,27 @@ class LeituraSensor(models.Model):
             f"{self.temperatura}°C | "
             f"{self.umidade}%"
         )
+
+
+class EventoAcionamento(models.Model):
+
+    ATUADORES = [
+        ("Peltier", "Peltier"),
+        ("Umidificador", "Umidificador"),
+        ("Lampada", "Lampada"),
+    ]
+
+    atuador = models.CharField(max_length=20, choices=ATUADORES)
+
+    ligado = models.BooleanField()
+
+    data = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-data"]
+
+    def __str__(self):
+
+        estado = "Ligou" if self.ligado else "Desligou"
+
+        return f"{self.atuador} - {estado} - {self.data.strftime('%d/%m/%Y %H:%M:%S')}"

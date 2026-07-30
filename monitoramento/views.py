@@ -11,6 +11,7 @@ import json
 from django.shortcuts import render
 from .models import LeituraSensor
 from datetime import timedelta
+from .models import EventoAcionamento
 
 # =========================================
 # RECEBER DADOS DO ESP32
@@ -26,36 +27,51 @@ def receber_dados(request):
             data = json.loads(request.body)
 
             sensor = data.get("sensor")
-
             temperatura = data.get("temperatura")
-
             umidade = data.get("umidade")
 
             ventoinha = data.get("ventoinha", False)
-
             umidificador = data.get("umidificador", False)
             lampada = data.get("lampada", False)
-            LeituraSensor.objects.create(
+
+            leitura = LeituraSensor.objects.create(
 
                 sensor=sensor,
-
                 temperatura=temperatura,
-
                 umidade=umidade,
-
                 ventoinha=ventoinha,
-
                 umidificador=umidificador,
-                
                 lampada=lampada
-
 
             )
 
+            # ==========================
+            # Registrar eventos
+            # ==========================
+
+            for nome, estado in [
+
+                ("Peltier", leitura.ventoinha),
+
+                ("Umidificador", leitura.umidificador),
+
+                ("Lampada", leitura.lampada),
+
+            ]:
+
+                ultimo = EventoAcionamento.objects.filter(
+                    atuador=nome
+                ).order_by("-data").first()
+
+                if ultimo is None or ultimo.ligado != estado:
+
+                    EventoAcionamento.objects.create(
+                        atuador=nome,
+                        ligado=estado
+                    )
+
             return JsonResponse({
-
                 "status": "salvo"
-
             })
 
         except Exception as e:
@@ -63,17 +79,12 @@ def receber_dados(request):
             print(e)
 
             return JsonResponse({
-
                 "status": "erro"
-
             })
 
     return JsonResponse({
-
-        "status": "erro"
-
+        "status": "metodo_invalido"
     })
-
 # =========================================
 # PAINEL
 # =========================================
@@ -289,3 +300,4 @@ def admin_login(request):
             return redirect("painel_admin")
 
     return render(request, "monitoramento/login.html")
+
