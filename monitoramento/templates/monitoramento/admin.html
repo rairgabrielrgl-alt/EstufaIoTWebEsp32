@@ -124,8 +124,9 @@ Tempo ligada:
 </div>
 <script>
 
-const grafico = new Chart(document.getElementById("graficoAcionamentos"),{
-
+let graficoEventos = new Chart(
+document.getElementById("graficoEventos"),
+{
     type:"line",
 
     data:{
@@ -134,32 +135,38 @@ const grafico = new Chart(document.getElementById("graficoAcionamentos"),{
         {
             label:"Peltier",
             data:[],
-            borderColor:"#3b82f6",
+            borderColor:"#2563eb",
             borderWidth:3,
-            fill:false,
-            stepped:true
+            stepped:true,
+            fill:false
         },
         {
             label:"Umidificador",
             data:[],
             borderColor:"#22c55e",
             borderWidth:3,
-            fill:false,
-            stepped:true
+            stepped:true,
+            fill:false
         },
         {
             label:"Lâmpada",
             data:[],
             borderColor:"#f59e0b",
             borderWidth:3,
-            fill:false,
-            stepped:true
+            stepped:true,
+            fill:false
         }
         ]
     },
 
     options:{
+
         responsive:true,
+
+        interaction:{
+            mode:"index",
+            intersect:false
+        },
 
         plugins:{
             legend:{
@@ -187,59 +194,71 @@ const grafico = new Chart(document.getElementById("graficoAcionamentos"),{
 
                     callback:function(v){
 
-                        return v==1?"Ligado":"Desligado";
+                        return v==1 ? "Ligado" : "Desligado";
 
                     }
                 }
             }
+
         }
+
     }
 
 });
 
+async function atualizarHistorico(){
 
-async function atualizarGrafico(){
+    const resposta = await fetch("/monitoramento/api-eventos/?t="+Date.now());
 
-    const resposta = await fetch("/monitoramento/api/?t="+Date.now());
-
-    const dados = await resposta.json();
-
-    if(dados.length==0) return;
+    const eventos = await resposta.json();
 
     let labels=[];
+
     let peltier=[];
     let umidificador=[];
     let lampada=[];
 
-    dados.forEach(item=>{
+    let estadoPeltier=0;
+    let estadoUmidificador=0;
+    let estadoLampada=0;
 
-        labels.push(new Date(item.data).toLocaleTimeString());
+    eventos.forEach(e=>{
 
-        peltier.push(item.ventoinha?1:0);
-        umidificador.push(item.umidificador?1:0);
-        lampada.push(item.lampada?1:0);
+        labels.push(
+            new Date(e.data).toLocaleString("pt-BR")
+        );
+
+        if(e.atuador=="Peltier"){
+            estadoPeltier = e.ligado ? 1 : 0;
+        }
+
+        if(e.atuador=="Umidificador"){
+            estadoUmidificador = e.ligado ? 1 : 0;
+        }
+
+        if(e.atuador=="Lampada"){
+            estadoLampada = e.ligado ? 1 : 0;
+        }
+
+        peltier.push(estadoPeltier);
+        umidificador.push(estadoUmidificador);
+        lampada.push(estadoLampada);
 
     });
 
-    grafico.data.labels=labels;
-    grafico.data.datasets[0].data=peltier;
-    grafico.data.datasets[1].data=umidificador;
-    grafico.data.datasets[2].data=lampada;
+    graficoEventos.data.labels = labels;
 
-    grafico.update();
+    graficoEventos.data.datasets[0].data = peltier;
+    graficoEventos.data.datasets[1].data = umidificador;
+    graficoEventos.data.datasets[2].data = lampada;
+
+    graficoEventos.update();
 
 }
-setInterval(()=>{
-
-atualizar();
 
 atualizarHistorico();
 
-},3000);
-
-atualizar();
-
-atualizarHistorico();
+setInterval(atualizarHistorico,3000);
 
 </script>
 let graficoEventos = new Chart(
