@@ -115,6 +115,13 @@ Tempo ligada:
 <canvas id="graficoAcionamentos"></canvas>
 
 </div>
+<div class="card">
+
+<h2>Histórico Completo dos Atuadores</h2>
+
+<canvas id="graficoEventos"></canvas>
+
+</div>
 <script>
 
 const grafico = new Chart(document.getElementById("graficoAcionamentos"),{
@@ -222,12 +229,228 @@ async function atualizarGrafico(){
     grafico.update();
 
 }
+setInterval(()=>{
 
-atualizarGrafico();
+atualizar();
 
-setInterval(atualizarGrafico,3000);
+atualizarHistorico();
+
+},3000);
+
+atualizar();
+
+atualizarHistorico();
 
 </script>
+let graficoEventos = new Chart(
+
+document.getElementById("graficoEventos"),
+
+{
+
+type:"line",
+
+data:{
+
+labels:[],
+
+datasets:[
+
+{
+
+label:"Peltier",
+
+data:[],
+
+borderColor:"#2563eb",
+
+backgroundColor:"#2563eb",
+
+stepped:true,
+
+fill:false,
+
+borderWidth:3
+
+},
+
+{
+
+label:"Umidificador",
+
+data:[],
+
+borderColor:"#16a34a",
+
+backgroundColor:"#16a34a",
+
+stepped:true,
+
+fill:false,
+
+borderWidth:3
+
+},
+
+{
+
+label:"Lâmpada",
+
+data:[],
+
+borderColor:"#f59e0b",
+
+backgroundColor:"#f59e0b",
+
+stepped:true,
+
+fill:false,
+
+borderWidth:3
+
+}
+
+]
+
+},
+
+options:{
+
+responsive:true,
+
+interaction:{
+
+mode:"index",
+
+intersect:false
+
+},
+
+plugins:{
+
+legend:{
+
+labels:{
+
+color:"white"
+
+}
+
+}
+
+},
+
+scales:{
+
+x:{
+
+ticks:{
+
+color:"white"
+
+}
+
+},
+
+y:{
+
+min:0,
+
+max:1,
+
+ticks:{
+
+stepSize:1,
+
+color:"white",
+
+callback:function(v){
+
+return v==1?"Ligado":"Desligado";
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+);
+async function atualizarHistorico(){
+
+const resposta = await fetch(
+
+"/monitoramento/api-eventos/?t="+Date.now()
+
+);
+
+const eventos = await resposta.json();
+
+let labels=[];
+
+let peltier=[];
+
+let umidificador=[];
+
+let lampada=[];
+
+let estadoPeltier=0;
+
+let estadoUmidificador=0;
+
+let estadoLampada=0;
+
+eventos.forEach(e=>{
+
+labels.push(
+
+new Date(e.data).toLocaleString()
+
+);
+
+if(e.atuador=="Peltier"){
+
+estadoPeltier=e.ligado?1:0;
+
+}
+
+if(e.atuador=="Umidificador"){
+
+estadoUmidificador=e.ligado?1:0;
+
+}
+
+if(e.atuador=="Lampada"){
+
+estadoLampada=e.ligado?1:0;
+
+}
+
+peltier.push(estadoPeltier);
+
+umidificador.push(estadoUmidificador);
+
+lampada.push(estadoLampada);
+
+});
+
+graficoEventos.data.labels=labels;
+
+graficoEventos.data.datasets[0].data=peltier;
+
+graficoEventos.data.datasets[1].data=umidificador;
+
+graficoEventos.data.datasets[2].data=lampada;
+
+graficoEventos.update();
+
+}
+
 </body>
 
 </html>

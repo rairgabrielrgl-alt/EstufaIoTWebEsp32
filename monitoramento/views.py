@@ -299,3 +299,28 @@ def admin_login(request):
 
     return render(request, "monitoramento/login.html")
 
+from django.http import JsonResponse
+from .models import EventoAcionamento
+
+
+def api_eventos(request):
+
+    eventos = EventoAcionamento.objects.order_by("data")
+
+    lista = []
+
+    for evento in eventos:
+
+        lista.append({
+
+            "atuador": evento.atuador,
+
+            "ligado": evento.ligado,
+
+            "data": evento.data.strftime("%Y-%m-%d %H:%M:%S")
+
+        })
+
+    return JsonResponse(lista, safe=False)
+
+    
