@@ -12,6 +12,7 @@ from django.shortcuts import render
 from .models import LeituraSensor
 from datetime import timedelta
 from .models import EventoAcionamento
+from django.utils import timezone
 
 # =========================================
 # RECEBER DADOS DO ESP32
@@ -303,6 +304,8 @@ from django.http import JsonResponse
 from .models import EventoAcionamento
 
 
+from django.utils import timezone
+
 def api_eventos(request):
 
     eventos = EventoAcionamento.objects.order_by("data")
@@ -314,13 +317,10 @@ def api_eventos(request):
         lista.append({
 
             "atuador": evento.atuador,
-
             "ligado": evento.ligado,
-
-            "data": evento.data.strftime("%Y-%m-%d %H:%M:%S")
+            "data": timezone.localtime(evento.data).isoformat()
 
         })
 
     return JsonResponse(lista, safe=False)
-
     
