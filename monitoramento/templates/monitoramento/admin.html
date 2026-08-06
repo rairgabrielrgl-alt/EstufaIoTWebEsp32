@@ -274,7 +274,8 @@ setInterval(atualizarHistorico,3000);
 
 async function atualizarIA(){
 
-    const resposta = await fetch("/monitoramento/assistente/");
+    const resposta =
+        await fetch("/monitoramento/assistente/");
 
     const dados = await resposta.json();
 
@@ -282,10 +283,6 @@ async function atualizarIA(){
         dados.resposta;
 
 }
-
-setInterval(atualizarIA,60000);
-
-atualizarIA();
 
 
 </script>

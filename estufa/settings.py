@@ -5,8 +5,9 @@ Django settings for estufa project.
 from pathlib import Path
 import os
 import dj_database_url
+import os
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # ======================
 # BASE
 # ======================

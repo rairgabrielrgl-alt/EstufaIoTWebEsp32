@@ -15,10 +15,10 @@ from .models import EventoAcionamento
 from django.utils import timezone
 from openai import OpenAI
 from django.conf import settings
-
+from google import genai
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 def assistente(request):
 
     leitura = (
@@ -34,25 +34,43 @@ def assistente(request):
         })
 
     prompt = f"""
-Você é um especialista em cultivo em estufas.
+    Você é um especialista em automação de estufas.
 
-Temperatura: {leitura.temperatura} °C
-Umidade: {leitura.umidade} %
+    Analise os dados abaixo.
 
-Peltier: {"Ligado" if leitura.ventoinha else "Desligado"}
-Umidificador: {"Ligado" if leitura.umidificador else "Desligado"}
-Lâmpada: {"Ligada" if leitura.lampada else "Desligada"}
+    Temperatura:
+    {leitura.temperatura} °C
 
-Explique em poucas palavras a situação da estufa e dê recomendações.
-"""
+    Umidade:
+    {leitura.umidade} %
 
-    resposta = client.responses.create(
-        model="gpt-5",
-        input=prompt
+    Peltier:
+    {"Ligado" if leitura.ventoinha else "Desligado"}
+
+    Umidificador:
+    {"Ligado" if leitura.umidificador else "Desligado"}
+
+    Lâmpada:
+    {"Ligada" if leitura.lampada else "Desligada"}
+
+    Explique:
+
+    • situação da estufa
+
+    • possíveis riscos
+
+    • recomendações
+
+    • estado dos atuadores
+
+    Responda em português.
+    """
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
     )
-
     return JsonResponse({
-        "resposta": resposta.output_text
+        "resposta": response.text
     })
 # =========================================
 # RECEBER DADOS DO ESP32
