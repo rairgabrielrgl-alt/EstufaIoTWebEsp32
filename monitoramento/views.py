@@ -32,7 +32,7 @@ def assistente(request):
 
     if leitura is None:
         return JsonResponse({
-            "resposta": "Ainda não existem leituras da estufa."
+            "resposta": "Ainda não existem leituras."
         })
 
     prompt = f"""
@@ -41,47 +41,60 @@ Você é um especialista em cultivo em estufas inteligentes.
 Analise os dados abaixo.
 
 Temperatura: {leitura.temperatura} °C
+
 Umidade: {leitura.umidade} %
 
 Peltier: {"Ligado" if leitura.ventoinha else "Desligado"}
+
 Umidificador: {"Ligado" if leitura.umidificador else "Desligado"}
+
 Lâmpada: {"Ligada" if leitura.lampada else "Desligada"}
 
-Explique:
+Faça uma análise em português contendo:
 
-- Situação da estufa
-- Se temperatura está adequada
-- Se umidade está adequada
-- O que os atuadores estão fazendo
-- Se existe algum risco
-- O que recomenda fazer
+- Situação atual da estufa
+- Temperatura
+- Umidade
+- Estado dos atuadores
+- Possíveis riscos
+- Recomendações
 
-Responda em português, de forma curta.
+Responda em no máximo 120 palavras.
 """
 
     try:
 
-        resposta = client.models.generate_content(
+        resposta = client.chat.completions.create(
 
-            model="gemini-2.0-flash",
+            model="llama-3.3-70b-versatile",
 
-            contents=prompt,
+            messages=[
+                {
+                    "role":"system",
+                    "content":"Você é um engenheiro especialista em automação agrícola."
+                },
+                {
+                    "role":"user",
+                    "content":prompt
+                }
+            ],
 
-            config=types.GenerateContentConfig(
-                temperature=0.4,
-                max_output_tokens=200
-            )
+            temperature=0.4,
+
+            max_tokens=250
 
         )
 
+        texto = resposta.choices[0].message.content
+
         return JsonResponse({
-            "resposta": resposta.text
+            "resposta": texto
         })
 
     except Exception as e:
 
         return JsonResponse({
-            "resposta": f"Erro Gemini: {str(e)}"
+            "resposta": f"Erro: {str(e)}"
         })
    
 # =========================================
