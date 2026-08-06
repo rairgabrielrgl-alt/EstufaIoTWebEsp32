@@ -13,11 +13,10 @@ from .models import LeituraSensor
 from datetime import timedelta
 from .models import EventoAcionamento
 from django.utils import timezone
-from openai import OpenAI
 from django.conf import settings
 from google import genai
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 def assistente(request):
 
@@ -30,48 +29,40 @@ def assistente(request):
 
     if leitura is None:
         return JsonResponse({
-            "resposta":"Ainda não existem dados."
+            "resposta": "Ainda não existem leituras."
         })
 
     prompt = f"""
-    Você é um especialista em automação de estufas.
+Você é um especialista em estufas inteligentes.
 
-    Analise os dados abaixo.
+Temperatura: {leitura.temperatura} °C
+Umidade: {leitura.umidade} %
 
-    Temperatura:
-    {leitura.temperatura} °C
+Peltier: {"Ligado" if leitura.ventoinha else "Desligado"}
+Umidificador: {"Ligado" if leitura.umidificador else "Desligado"}
+Lâmpada: {"Ligada" if leitura.lampada else "Desligada"}
 
-    Umidade:
-    {leitura.umidade} %
+Faça uma análise curta em português.
+"""
 
-    Peltier:
-    {"Ligado" if leitura.ventoinha else "Desligado"}
+    try:
 
-    Umidificador:
-    {"Ligado" if leitura.umidificador else "Desligado"}
+        resposta = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
 
-    Lâmpada:
-    {"Ligada" if leitura.lampada else "Desligada"}
+        return JsonResponse({
+            "resposta": resposta.text
+        })
 
-    Explique:
+    except Exception as e:
 
-    • situação da estufa
+        return JsonResponse({
+            "resposta": str(e)
+        })
 
-    • possíveis riscos
-
-    • recomendações
-
-    • estado dos atuadores
-
-    Responda em português.
-    """
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-    )
-    return JsonResponse({
-        "resposta": response.text
-    })
+   
 # =========================================
 # RECEBER DADOS DO ESP32
 # =========================================
