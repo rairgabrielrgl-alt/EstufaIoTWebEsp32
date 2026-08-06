@@ -14,13 +14,13 @@ from datetime import timedelta
 from .models import EventoAcionamento
 from django.utils import timezone
 from django.conf import settings
-from google import genai
 from django.conf import settings
-from google import genai
-from google.genai import types
+from openai import OpenAI
 
-
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+client = OpenAI(
+    api_key=settings.GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1"
+)
 def assistente(request):
 
     leitura = (
