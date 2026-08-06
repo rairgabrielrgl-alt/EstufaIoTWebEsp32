@@ -37,7 +37,7 @@ def assistente(request):
 
     prompt = f"""
 Você é um especialista em cultivo em estufas inteligentes.
-Como base para sua análise considere os seguintes dados de monitoramento da estufa: a variaveis ideias são temperatura entre 23 e 25 °C, umidade entre 50 e 80 %, a estufa vai receber mudas de acerola, então se baseie nesses parâmetros.
+Como base para sua análise considere os seguintes dados de monitoramento da estufa: a variaveis ideias são temperatura entre 23 e 25 °C, e que a umidade fique  entre 50% e 80 %, a estufa vai receber mudas de acerola, então se baseie nesses parâmetros.
 Analise os dados abaixo.
 
 Temperatura: {leitura.temperatura} °C
