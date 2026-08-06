@@ -16,38 +16,34 @@ from django.utils import timezone
 from openai import OpenAI
 from django.conf import settings
 
+
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 def assistente(request):
 
-    
-    leituras = (
-    LeituraSensor.objects
-    .filter(sensor="interno")
-    .order_by("-data")[:50]
-)
+    leitura = (
+        LeituraSensor.objects
+        .filter(sensor="interno")
+        .order_by("-data")
+        .first()
+    )
+
+    if leitura is None:
+        return JsonResponse({
+            "resposta":"Ainda não existem dados."
+        })
 
     prompt = f"""
 Você é um especialista em cultivo em estufas.
 
-Dados atuais:
+Temperatura: {leitura.temperatura} °C
+Umidade: {leitura.umidade} %
 
-Temperatura:
-{leituras.temperatura} °C
+Peltier: {"Ligado" if leitura.ventoinha else "Desligado"}
+Umidificador: {"Ligado" if leitura.umidificador else "Desligado"}
+Lâmpada: {"Ligada" if leitura.lampada else "Desligada"}
 
-Umidade:
-{leituras.umidade} %
-
-Peltier:
-{"Ligado" if leituras.ventoinha else "Desligado"}
-
-Umidificador:
-{"Ligado" if leituras.umidificador else "Desligado"}
-
-Lâmpada:
-{"Ligada" if leituras.lampada else "Desligada"}
-
-Explique em poucas palavras como está a situação da estufa.
+Explique em poucas palavras a situação da estufa e dê recomendações.
 """
 
     resposta = client.responses.create(
@@ -58,8 +54,6 @@ Explique em poucas palavras como está a situação da estufa.
     return JsonResponse({
         "resposta": resposta.output_text
     })
-
-
 # =========================================
 # RECEBER DADOS DO ESP32
 # =========================================
