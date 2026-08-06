@@ -15,6 +15,9 @@ from .models import EventoAcionamento
 from django.utils import timezone
 from django.conf import settings
 from google import genai
+from django.conf import settings
+from google import genai
+from google.genai import types
 
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
@@ -29,11 +32,13 @@ def assistente(request):
 
     if leitura is None:
         return JsonResponse({
-            "resposta": "Ainda não existem leituras."
+            "resposta": "Ainda não existem leituras da estufa."
         })
 
     prompt = f"""
-Você é um especialista em estufas inteligentes.
+Você é um especialista em cultivo em estufas inteligentes.
+
+Analise os dados abaixo.
 
 Temperatura: {leitura.temperatura} °C
 Umidade: {leitura.umidade} %
@@ -42,14 +47,31 @@ Peltier: {"Ligado" if leitura.ventoinha else "Desligado"}
 Umidificador: {"Ligado" if leitura.umidificador else "Desligado"}
 Lâmpada: {"Ligada" if leitura.lampada else "Desligada"}
 
-Faça uma análise curta em português.
+Explique:
+
+- Situação da estufa
+- Se temperatura está adequada
+- Se umidade está adequada
+- O que os atuadores estão fazendo
+- Se existe algum risco
+- O que recomenda fazer
+
+Responda em português, de forma curta.
 """
 
     try:
 
         resposta = client.models.generate_content(
-            model="gemini-2.5-flash",
+
+            model="gemini-2.0-flash",
+
             contents=prompt,
+
+            config=types.GenerateContentConfig(
+                temperature=0.4,
+                max_output_tokens=200
+            )
+
         )
 
         return JsonResponse({
@@ -59,9 +81,8 @@ Faça uma análise curta em português.
     except Exception as e:
 
         return JsonResponse({
-            "resposta": str(e)
+            "resposta": f"Erro Gemini: {str(e)}"
         })
-
    
 # =========================================
 # RECEBER DADOS DO ESP32
