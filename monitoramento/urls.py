@@ -23,5 +23,10 @@ urlpatterns = [
     "api-eventos/",
     views.api_eventos,
     name="api_eventos",
-),
+    ),
+    path(
+    "assistente/",
+    views.assistente,
+    name="assistente"
+    ),
 ]

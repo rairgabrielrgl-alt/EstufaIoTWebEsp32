@@ -13,6 +13,52 @@ from .models import LeituraSensor
 from datetime import timedelta
 from .models import EventoAcionamento
 from django.utils import timezone
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+def assistente(request):
+
+    
+    leituras = (
+    LeituraSensor.objects
+    .filter(sensor="interno")
+    .order_by("-data")[:50]
+)
+
+    prompt = f"""
+Você é um especialista em cultivo em estufas.
+
+Dados atuais:
+
+Temperatura:
+{leituras.temperatura} °C
+
+Umidade:
+{leituras.umidade} %
+
+Peltier:
+{"Ligado" if leituras.ventoinha else "Desligado"}
+
+Umidificador:
+{"Ligado" if leituras.umidificador else "Desligado"}
+
+Lâmpada:
+{"Ligada" if leituras.lampada else "Desligada"}
+
+Explique em poucas palavras como está a situação da estufa.
+"""
+
+    resposta = client.responses.create(
+        model="gpt-5",
+        input=prompt
+    )
+
+    return JsonResponse({
+        "resposta": resposta.output_text
+    })
+
 
 # =========================================
 # RECEBER DADOS DO ESP32

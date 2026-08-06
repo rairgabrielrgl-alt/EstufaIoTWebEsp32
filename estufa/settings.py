@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 import dj_database_url
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # ======================
 # BASE
 # ======================

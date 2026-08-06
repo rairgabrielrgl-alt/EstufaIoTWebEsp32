@@ -122,6 +122,18 @@ Tempo ligada:
 <canvas id="graficoEventos"></canvas>
 
 </div>
+
+<div class="card">
+
+<h2>🤖 Assistente Inteligente</h2>
+
+<div id="ia">
+
+Carregando...
+
+</div>
+
+</div>
 <script>
 
 let graficoEventos = new Chart(
@@ -259,6 +271,21 @@ async function atualizarHistorico(){
 atualizarHistorico();
 
 setInterval(atualizarHistorico,3000);
+
+async function atualizarIA(){
+
+    const resposta = await fetch("/monitoramento/assistente/");
+
+    const dados = await resposta.json();
+
+    document.getElementById("ia").innerHTML =
+        dados.resposta;
+
+}
+
+setInterval(atualizarIA,60000);
+
+atualizarIA();
 
 
 </script>
