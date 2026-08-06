@@ -103,7 +103,7 @@ Faça uma análise técnica em português contendo:
 5. Possíveis riscos para o cultivo.
 6. Possibilidade de condensação na placa fria da Peltier.
 7. Eficiência energética do sistema.
-8. Mostre a diferença entre as temperaturas interna e externa, e a diferença entre as umidades interna e externa.
+8. Mostre a diferença entre as temperaturas  externa e interna, e a diferença entre as umidades interna e externa.
 
 Responda como um relatório técnico curto, com no máximo 180 palavras.
 """
