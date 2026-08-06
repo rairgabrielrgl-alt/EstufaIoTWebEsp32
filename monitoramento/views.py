@@ -17,12 +17,14 @@ from django.conf import settings
 from django.conf import settings
 from openai import OpenAI
 
+
 client = OpenAI(
     api_key=settings.GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1"
 )
 def assistente(request):
 
+    # Última leitura interna
     leitura = (
         LeituraSensor.objects
         .filter(sensor="interno")
@@ -30,36 +32,79 @@ def assistente(request):
         .first()
     )
 
+    # Última leitura externa
+    leitura_externa = (
+        LeituraSensor.objects
+        .filter(sensor="externo")
+        .order_by("-data")
+        .first()
+    )
+
     if leitura is None:
         return JsonResponse({
-            "resposta": "Ainda não existem leituras."
+            "resposta": "Ainda não existem leituras da estufa."
         })
 
+    temperatura_externa = (
+        leitura_externa.temperatura if leitura_externa else 0
+    )
+
+    umidade_externa = (
+        leitura_externa.umidade if leitura_externa else 0
+    )
+
     prompt = f"""
-Você é um especialista em cultivo em estufas inteligentes.
-Como base para sua análise considere os seguintes dados de monitoramento da estufa: a variaveis ideias são temperatura entre 23 e 25 °C, e que a umidade fique  entre 50% e 80 %, a estufa vai receber mudas de acerola, o peltier so sera desligado quando a temperatura estiver fora do intervalo ideal, a mesma coisa acontece com o umidificador, então se baseie nesses parâmetros.
-Analise os dados abaixo.
+Você é um engenheiro agrônomo especializado em automação de estufas IoT.
 
-Temperatura: {leitura.temperatura} °C
+Você está monitorando uma estufa inteligente equipada com:
 
-Umidade: {leitura.umidade} %
+- ESP32
+- Sensor DHT22 interno
+- Sensor DHT22 externo
+- Módulo Peltier para resfriamento
+- Ventoinha
+- Umidificador ultrassônico
+- Lâmpada para aquecimento
+
+A lógica da automação é a seguinte:
+
+PELTIER
+- Liga quando a temperatura interna ultrapassa 25°C OU quando a umidade interna ultrapassa 80%.
+- Desliga apenas quando a temperatura fica abaixo de 23°C E a umidade abaixo de 80%.
+
+LÂMPADA
+- Só funciona quando o Peltier está desligado.
+- Liga quando a temperatura interna fica abaixo de 22°C.
+- Desliga quando a temperatura ultrapassa 22,9°C.
+
+UMIDIFICADOR
+- Liga quando a umidade interna fica abaixo de 50% e a temperatura interna está acima de 23°C.
+- Desliga quando a umidade ultrapassa 80% ou quando a temperatura é igual ou inferior a 23°C.
+
+DADOS ATUAIS
+
+Temperatura interna: {leitura.temperatura:.1f} °C
+Umidade interna: {leitura.umidade:.1f} %
+
+Temperatura externa: {temperatura_externa:.1f} °C
+Umidade externa: {umidade_externa:.1f} %
 
 Peltier: {"Ligado" if leitura.ventoinha else "Desligado"}
-
 Umidificador: {"Ligado" if leitura.umidificador else "Desligado"}
-
 Lâmpada: {"Ligada" if leitura.lampada else "Desligada"}
 
-Faça uma análise em português contendo:
+Faça uma análise técnica em português contendo:
 
-- Situação atual da estufa
-- Temperatura
-- Umidade
-- Estado dos atuadores
-- Possíveis riscos
-- Recomendações
+1. Situação geral da estufa.
+2. Avaliação da temperatura.
+3. Avaliação da umidade.
+4. Explicação do estado de cada atuador.
+5. Possíveis riscos para o cultivo.
+6. Possibilidade de condensação na placa fria da Peltier.
+7. Eficiência energética do sistema.
+8. Recomendações de melhoria.
 
-Responda em no máximo 120 palavras.
+Responda como um relatório técnico curto, com no máximo 180 palavras.
 """
 
     try:
@@ -70,18 +115,17 @@ Responda em no máximo 120 palavras.
 
             messages=[
                 {
-                    "role":"system",
-                    "content":"Você é um engenheiro especialista em automação agrícola."
+                    "role": "system",
+                    "content": "Você é um engenheiro especialista em automação agrícola e estufas inteligentes."
                 },
                 {
-                    "role":"user",
-                    "content":prompt
+                    "role": "user",
+                    "content": prompt
                 }
             ],
 
-            temperature=0.4,
-
-            max_tokens=250
+            temperature=0.3,
+            max_tokens=300
 
         )
 
@@ -94,7 +138,7 @@ Responda em no máximo 120 palavras.
     except Exception as e:
 
         return JsonResponse({
-            "resposta": f"Erro: {str(e)}"
+            "resposta": f"Erro da IA: {str(e)}"
         })
    
 # =========================================
