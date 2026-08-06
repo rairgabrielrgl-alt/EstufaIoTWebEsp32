@@ -69,8 +69,9 @@ Você está monitorando uma estufa inteligente equipada com:
 A lógica da automação é a seguinte:
 
 PELTIER
-- Liga quando a temperatura interna ultrapassa 25°C OU quando a umidade interna ultrapassa 80%.
+- Liga quando a temperatura interna ultrapassa 25°C  OU quando a umidade interna ultrapassa 80%.
 - Desliga apenas quando a temperatura fica abaixo de 23°C E a umidade abaixo de 80%.
+- O ideial é que a temperatura fique entre 23°C e 25°C 
 
 LÂMPADA
 - Só funciona quando o Peltier está desligado.
